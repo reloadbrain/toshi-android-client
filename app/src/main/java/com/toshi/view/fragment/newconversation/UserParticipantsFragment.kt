@@ -34,7 +34,7 @@ import com.toshi.extensions.addHorizontalLineDivider
 import com.toshi.extensions.isVisible
 import com.toshi.model.local.User
 import com.toshi.util.KeyboardUtil
-import com.toshi.view.activity.NewConversationActivity
+import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.UserAdapter
 import com.toshi.viewModel.UserParticipantsViewModel
 import kotlinx.android.synthetic.main.fragment_user_participants.*
@@ -77,7 +77,7 @@ class UserParticipantsFragment : Fragment() {
         this.activity.onBackPressed()
     }
 
-    private fun handleNewGroupClicked() = (this.activity as NewConversationActivity).openNewGroupFlow()
+    private fun handleNewGroupClicked() = (this.activity as ConversationSetupActivity).openNewGroupFlow()
 
     private fun initRecyclerView() {
         userAdapter = UserAdapter().setOnItemClickListener(this::handleUserClicked)
@@ -89,7 +89,7 @@ class UserParticipantsFragment : Fragment() {
         }
     }
 
-    private fun handleUserClicked(user: User) = (this.activity as NewConversationActivity).openConversation(user)
+    private fun handleUserClicked(user: User) = (this.activity as ConversationSetupActivity).openConversation(user)
 
     private fun initObservers() {
         initSearch()

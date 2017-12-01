@@ -35,7 +35,7 @@ import com.toshi.model.local.Conversation
 import com.toshi.model.local.ConversationInfo
 import com.toshi.view.activity.ChatActivity
 import com.toshi.view.activity.ConversationRequestActivity
-import com.toshi.view.activity.NewConversationActivity
+import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.RecentAdapter
 import com.toshi.view.adapter.listeners.OnItemClickListener
 import com.toshi.view.adapter.listeners.OnUpdateListener
@@ -78,8 +78,8 @@ class RecentFragment : Fragment(), TopLevelFragment {
     }
 
     private fun initClickListeners() {
-        startChat.setOnClickListener { startActivity<NewConversationActivity>() }
-        add.setOnClickListener { startActivity<NewConversationActivity>() }
+        startChat.setOnClickListener { startActivity<ConversationSetupActivity>() }
+        add.setOnClickListener { startActivity<ConversationSetupActivity>() }
     }
 
     private fun restoreScrollPosition(inState: Bundle?) {

@@ -75,7 +75,7 @@
         <activity android:name="com.toshi.view.activity.GroupInfoActivity" />
         <activity android:name="com.toshi.view.activity.ViewProfileActivity" />
         <activity android:name="com.toshi.view.activity.EditProfileActivity" />
-        <activity android:name="com.toshi.view.activity.NewConversationActivity" />
+        <activity android:name="com.toshi.view.activity.ConversationSetupActivity" />
         <activity android:name="com.toshi.view.activity.AmountActivity" />
         <activity android:name="com.toshi.view.activity.ScannerActivity"
                   android:theme="@style/FullScreenTheme"/>

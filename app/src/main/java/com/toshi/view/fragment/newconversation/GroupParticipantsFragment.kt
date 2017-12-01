@@ -32,7 +32,7 @@ import com.toshi.R
 import com.toshi.extensions.addHorizontalLineDivider
 import com.toshi.extensions.isVisible
 import com.toshi.model.local.User
-import com.toshi.view.activity.NewConversationActivity
+import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.UserAdapter
 import com.toshi.viewModel.GroupParticipantsViewModel
 import kotlinx.android.synthetic.main.fragment_group_participants.*
@@ -65,7 +65,7 @@ class GroupParticipantsFragment : Fragment() {
         next.setOnClickListener { handleNextClicked() }
     }
 
-    private fun handleNextClicked() = (this.activity as NewConversationActivity).openGroupSetupFlow(viewModel.selectedParticipants.value!!)
+    private fun handleNextClicked() = (this.activity as ConversationSetupActivity).openGroupSetupFlow(viewModel.selectedParticipants.value!!)
 
     private fun initRecyclerView() {
         userAdapter = UserAdapter().setOnItemClickListener(this::handleUserClicked)

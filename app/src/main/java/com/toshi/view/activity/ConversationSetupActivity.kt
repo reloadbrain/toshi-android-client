@@ -43,7 +43,7 @@ import com.toshi.view.fragment.newconversation.UserParticipantsFragment
 import com.toshi.viewModel.NewConversationViewModel
 import java.io.File
 
-class NewConversationActivity : AppCompatActivity() {
+class ConversationSetupActivity : AppCompatActivity() {
 
     companion object {
         private val PICK_IMAGE = 1

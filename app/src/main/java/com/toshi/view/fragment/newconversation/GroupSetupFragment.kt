@@ -36,7 +36,7 @@ import com.toshi.extensions.toast
 import com.toshi.model.local.User
 import com.toshi.util.ImageUtil
 import com.toshi.util.LogUtil
-import com.toshi.view.activity.NewConversationActivity
+import com.toshi.view.activity.ConversationSetupActivity
 import com.toshi.view.adapter.GroupParticipantAdapter
 import com.toshi.viewModel.GroupSetupViewModel
 import kotlinx.android.synthetic.main.fragment_group_setup.*
@@ -81,7 +81,7 @@ class GroupSetupFragment : Fragment() {
     private fun initClickListeners() {
         create.setOnClickListener { viewModel.createGroup(selectedParticipants, avatarUri, groupName.text.toString()) }
         closeButton.setOnClickListener { this.activity.onBackPressed() }
-        avatar.setOnClickListener { (this.activity as NewConversationActivity).showImageChooserDialog() }
+        avatar.setOnClickListener { (this.activity as ConversationSetupActivity).showImageChooserDialog() }
     }
 
     private fun initRecyclerView() {
@@ -107,7 +107,7 @@ class GroupSetupFragment : Fragment() {
     private fun initObservers() {
         initNameListener()
         viewModel.conversationCreated.observe(this, Observer {
-            (this.activity as NewConversationActivity).openConversation(it)
+            (this.activity as ConversationSetupActivity).openConversation(it)
         })
         viewModel.error.observe(this, Observer {
             LogUtil.exception(this::class.java, it)
