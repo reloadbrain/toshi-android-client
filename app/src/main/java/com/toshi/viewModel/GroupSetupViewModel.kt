@@ -29,6 +29,7 @@ import com.toshi.util.SingleLiveEvent
 import com.toshi.view.BaseApplication
 import rx.Single
 import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 
 class GroupSetupViewModel : ViewModel() {
@@ -37,6 +38,7 @@ class GroupSetupViewModel : ViewModel() {
     private var isCreatingGroup = false
 
     val conversationCreated by lazy { SingleLiveEvent<Conversation>() }
+    val group by lazy { SingleLiveEvent<Group>() }
     val error by lazy { SingleLiveEvent<Throwable>() }
 
     fun createGroup(participants: List<User>,
@@ -56,6 +58,19 @@ class GroupSetupViewModel : ViewModel() {
                         { error.value = it }
                 )
         this.subscriptions.add(subscription)
+    }
+
+    fun fetchGroup(groupId: String?) {
+        val subscription = BaseApplication.get()
+                .recipientManager
+                .getGroupFromId(groupId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { group.value = it },
+                        { error.value = it }
+                )
+        subscriptions.add(subscription)
     }
 
     private fun createGroupObject(participants: List<User>,

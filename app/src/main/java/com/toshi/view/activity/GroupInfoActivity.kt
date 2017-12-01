@@ -139,7 +139,7 @@ class GroupInfoActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.edit -> LogUtil.d(javaClass, "Not implemented")
+            R.id.edit -> startGroupEditActivity(viewModel.group.value)
             R.id.leave -> handleLeaveGroup()
         }
         return super.onOptionsItemSelected(item)
@@ -155,6 +155,10 @@ class GroupInfoActivity : AppCompatActivity() {
 
     private fun startChatActivity(user: User) = startActivityAndFinish<ChatActivity> {
         putExtra(ChatActivity.EXTRA__THREAD_ID, user.toshiId)
+    }
+
+    private fun startGroupEditActivity(group: Group?) = startActivityAndFinish<ConversationSetupActivity> {
+        putExtra(ConversationSetupActivity.EXTRA__GROUP_ID_FOR_EDITING, group?.id)
     }
 
     private fun returnToMainActivity() = startActivity<MainActivity> {

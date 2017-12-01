@@ -33,6 +33,7 @@ import android.widget.Toast
 import com.toshi.R
 import com.toshi.extensions.addHorizontalLineDivider
 import com.toshi.extensions.toast
+import com.toshi.model.local.Group
 import com.toshi.model.local.User
 import com.toshi.util.ImageUtil
 import com.toshi.util.LogUtil
@@ -43,15 +44,22 @@ import kotlinx.android.synthetic.main.fragment_group_setup.*
 
 class GroupSetupFragment : Fragment() {
 
+    private val userAdapter: GroupParticipantAdapter by lazy { GroupParticipantAdapter() }
     private lateinit var viewModel: GroupSetupViewModel
-    private lateinit var selectedParticipants: List<User>
-    private lateinit var userAdapter: GroupParticipantAdapter
+    private var selectedParticipants: List<User> = emptyList()
+    private var groupId: String? = null
 
     var avatarUri: Uri? = null
         set(value) { field = value; ImageUtil.renderFileIntoTarget(value, avatar) }
 
     fun setSelectedParticipants(selectedParticipants: List<User>): GroupSetupFragment {
         this.selectedParticipants = selectedParticipants
+        userAdapter.addUsers(this.selectedParticipants)
+        return this
+    }
+
+    fun setGroupId(groupId: String): Fragment {
+        this.groupId = groupId
         return this
     }
 
@@ -85,7 +93,6 @@ class GroupSetupFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        userAdapter = GroupParticipantAdapter().addUsers(this.selectedParticipants)
         participants.apply {
             layoutManager = LinearLayoutManager(this.context)
             itemAnimator = DefaultItemAnimator()
@@ -113,6 +120,22 @@ class GroupSetupFragment : Fragment() {
             LogUtil.exception(this::class.java, it)
             toast(R.string.error__group_creation, Toast.LENGTH_LONG)
         })
+        groupId?.let {
+            viewModel.fetchGroup(groupId)
+            viewModel.group.observe(this, Observer {
+                updateUiFromGroup(it)
+            })
+        }
+    }
+
+    private fun updateUiFromGroup(group: Group?) {
+        group?.let {
+            setSelectedParticipants(group.members)
+            ImageUtil.load(group.avatar, avatar)
+            groupName.setText(group.title)
+            initNumberOfParticipantsView()
+            create.setText(R.string.update_group)
+        }
     }
 
     private fun initNameListener() {
