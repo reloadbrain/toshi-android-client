@@ -18,8 +18,6 @@
 package com.toshi.manager;
 
 
-import android.util.Pair;
-
 import com.toshi.BuildConfig;
 import com.toshi.R;
 import com.toshi.crypto.HDWallet;
@@ -52,6 +50,7 @@ import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import kotlin.Triple;
 import rx.Completable;
 import rx.Observable;
 import rx.Single;
@@ -210,8 +209,9 @@ public final class SofaMessageManager {
     }
 
     // Returns a pair of RxSubjects, the first being the observable for new messages
-    // the second being the observable for updated messages.
-    public final Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> registerForConversationChanges(final String threadId) {
+    // the second being the observable for updated messages
+    // the third being the observable for any changes to the conversation (i.e. if the name or avatar is changed)
+    public final Triple<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>, PublishSubject<Conversation>> registerForConversationChanges(final String threadId) {
         return this.conversationStore.registerForChanges(threadId);
     }
 

@@ -61,6 +61,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
     val acceptConversation by lazy { SingleLiveEvent<Unit>() }
     val declineConversation by lazy { SingleLiveEvent<Unit>() }
     val updateMessage by lazy { SingleLiveEvent<SofaMessage>() }
+    val updateConversation by lazy { SingleLiveEvent<Conversation>() }
     val newMessage by lazy { SingleLiveEvent<SofaMessage>() }
     val deleteMessage by lazy { SingleLiveEvent<SofaMessage>() }
     val error by lazy { SingleLiveEvent<Int>() }
@@ -163,6 +164,16 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
                         { LogUtil.exception(javaClass, it) }
                 )
 
+        val updateConversationSub = sofaMessageManager
+                .registerForConversationChanges(recipient.threadId)
+                .third
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { updateConversation.value = it },
+                        { LogUtil.exception(javaClass, it) }
+                )
+
         val deleteSub = sofaMessageManager
                 .registerForDeletedMessages(recipient.threadId)
                 .subscribeOn(Schedulers.io())
@@ -175,6 +186,7 @@ class ChatViewModel(private val threadId: String) : ViewModel() {
         subscriptions.addAll(
                 chatSub,
                 updateSub,
+                updateConversationSub,
                 deleteSub
         )
     }

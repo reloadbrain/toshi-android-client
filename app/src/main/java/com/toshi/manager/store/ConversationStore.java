@@ -20,7 +20,6 @@ package com.toshi.manager.store;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Pair;
 
 import com.toshi.model.local.Conversation;
 import com.toshi.model.local.Group;
@@ -41,6 +40,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import kotlin.Triple;
 import rx.Completable;
 import rx.Observable;
 import rx.Single;
@@ -58,13 +58,15 @@ public class ConversationStore {
     private final static PublishSubject<SofaMessage> UPDATED_MESSAGE_SUBJECT = PublishSubject.create();
     private final static PublishSubject<SofaMessage> DELETED_MESSAGE_SUBJECT = PublishSubject.create();
     private final static PublishSubject<Conversation> CONVERSATION_CHANGED_SUBJECT = PublishSubject.create();
+    private final static PublishSubject<Conversation> CONVERSATION_UPDATED_SUBJECT = PublishSubject.create();
     private final static ExecutorService dbThread = Executors.newSingleThreadExecutor();
 
-    // Returns a pair of RxSubjects, the first being the observable for new messages
-    // the second being the observable for updated messages.
-    public Pair<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>> registerForChanges(final String threadId) {
+    // Returns a triple of RxSubjects, the first being the observable for new messages
+    // the second being the observable for updated messages,
+    // the third being the observable for any changes to the conversation (i.e. if the name or avatar is changed)
+    public Triple<PublishSubject<SofaMessage>, PublishSubject<SofaMessage>, PublishSubject<Conversation>> registerForChanges(final String threadId) {
         watchedThreadId = threadId;
-        return new Pair<>(NEW_MESSAGE_SUBJECT, UPDATED_MESSAGE_SUBJECT);
+        return new Triple<>(NEW_MESSAGE_SUBJECT, UPDATED_MESSAGE_SUBJECT, CONVERSATION_UPDATED_SUBJECT);
     }
 
     public Observable<SofaMessage> registerForDeletedMessages(final String threadId) {
@@ -91,9 +93,15 @@ public class ConversationStore {
                 .observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.from(dbThread))
                 .subscribe(
-                        this::broadcastConversationChanged,
+                        this::handleGroupSaved,
                         this::handleError
                 );
+    }
+
+    @NonNull
+    private void handleGroupSaved(final Conversation conversation) {
+        broadcastConversationChanged(conversation);
+        broadcastConversationUpdated(conversation);
     }
 
     public Single<Conversation> createNewConversationFromGroup(@NonNull final Group group) {
@@ -426,6 +434,13 @@ public class ConversationStore {
             return;
         }
         DELETED_MESSAGE_SUBJECT.onNext(deletedMessage);
+    }
+
+    private void broadcastConversationUpdated(final Conversation conversation) {
+        if (watchedThreadId == null || !watchedThreadId.equals(conversation.getThreadId())) {
+            return;
+        }
+        CONVERSATION_UPDATED_SUBJECT.onNext(conversation);
     }
 
     private void handleError(final Throwable throwable) {

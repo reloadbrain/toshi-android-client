@@ -319,6 +319,9 @@ class ChatActivity : AppCompatActivity() {
         viewModel.updateMessage.observe(this, Observer {
             updatedMessage -> updatedMessage?.let { messageAdapter.updateMessage(it) }
         })
+        viewModel.updateConversation.observe(this, Observer {
+            updatedMessage -> updatedMessage?.let { initToolbar(it.recipient) }
+        })
         viewModel.deleteMessage.observe(this, Observer {
             deletedMessage -> deletedMessage?.let { messageAdapter.deleteMessage(it) }
         })
