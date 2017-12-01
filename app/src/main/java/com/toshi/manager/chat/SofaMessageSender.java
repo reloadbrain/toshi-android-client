@@ -48,6 +48,8 @@ import org.whispersystems.signalservice.internal.configuration.SignalCdnUrl;
 import org.whispersystems.signalservice.internal.configuration.SignalServiceConfiguration;
 import org.whispersystems.signalservice.internal.configuration.SignalServiceUrl;
 
+import java.util.List;
+
 import rx.Single;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -169,6 +171,10 @@ public class SofaMessageSender {
 
     public void sendGroupInfo(@NotNull final String messageSource, @NotNull final Group group) {
         new SendGroupInfoTask(this.signalMessageSender).run(messageSource, group);
+    }
+
+    public void sendGroupInfo(@NotNull final List<User> users, @NotNull final Group group) {
+        new SendGroupInfoTask(this.signalMessageSender).run(users, group);
     }
 
     public void leaveGroup(final Group group) {

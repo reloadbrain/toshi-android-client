@@ -19,6 +19,7 @@ package com.toshi.manager.chat.tasks
 
 import com.toshi.exception.GroupCreationException
 import com.toshi.model.local.Group
+import com.toshi.model.local.User
 import org.whispersystems.libsignal.util.Hex
 import org.whispersystems.signalservice.api.SignalServiceMessageSender
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage
@@ -30,6 +31,13 @@ import java.io.IOException
 class SendGroupInfoTask(
         private val signalMessageSender: SignalServiceMessageSender
 ) {
+    fun run(requestingUsers: List<User>, group: Group) {
+        for (requestingUser in requestingUsers) {
+            val requestingUserAddress = requestingUser.toshiId
+            run(requestingUserAddress, group)
+        }
+    }
+
     fun run(requestingUserAddress: String, group: Group) {
         if (!shouldSendGroupInfo(requestingUserAddress, group)) return
         try {

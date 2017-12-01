@@ -125,6 +125,9 @@ class GroupSetupFragment : Fragment() {
             viewModel.group.observe(this, Observer {
                 updateUiFromGroup(it)
             })
+            viewModel.groupUpdated.observe(this, Observer {
+                (this.activity as ConversationSetupActivity).finish()
+            })
         }
     }
 
@@ -135,6 +138,7 @@ class GroupSetupFragment : Fragment() {
             groupName.setText(group.title)
             initNumberOfParticipantsView()
             create.setText(R.string.update_group)
+            create.setOnClickListener { viewModel.updateGroup(group, avatarUri, groupName.text.toString()) }
         }
     }
 

@@ -27,6 +27,7 @@ import com.toshi.model.local.User
 import com.toshi.util.ImageUtil
 import com.toshi.util.SingleLiveEvent
 import com.toshi.view.BaseApplication
+import rx.Completable
 import rx.Single
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -38,6 +39,7 @@ class GroupSetupViewModel : ViewModel() {
     private var isCreatingGroup = false
 
     val conversationCreated by lazy { SingleLiveEvent<Conversation>() }
+    val groupUpdated by lazy { SingleLiveEvent<Group>() }
     val group by lazy { SingleLiveEvent<Group>() }
     val error by lazy { SingleLiveEvent<Throwable>() }
 
@@ -73,12 +75,37 @@ class GroupSetupViewModel : ViewModel() {
         subscriptions.add(subscription)
     }
 
+    fun updateGroup(group: Group,
+                    avatarUri: Uri?,
+                    groupName: String) {
+        if (isCreatingGroup) return
+        isCreatingGroup = true
+        val subscription = generateAvatarFromUri(avatarUri)
+                .map { avatar -> updateGroupObject(group, avatar, groupName) }
+                .flatMapCompletable { saveUpdatedGroup(it) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .doAfterTerminate { isCreatingGroup = false }
+                .subscribe(
+                        { groupUpdated.value = group },
+                        { error.value = it }
+                )
+        this.subscriptions.add(subscription)
+    }
+
     private fun createGroupObject(participants: List<User>,
                                   avatar: Bitmap?,
                                   groupName: String): Group {
         return Group(participants)
                 .setTitle(groupName)
                 .setAvatar(avatar)
+    }
+
+    private fun updateGroupObject(group: Group,
+                                  newAvatar: Bitmap?,
+                                  groupName: String): Group {
+        newAvatar?.let { group.setAvatar(newAvatar) }
+        group.title = groupName
+        return group
     }
 
     private fun addCurrentUserToGroup(group: Group): Single<Group> {
@@ -96,15 +123,14 @@ class GroupSetupViewModel : ViewModel() {
                 .createConversationFromGroup(group)
     }
 
-    private fun generateAvatarFromUri(avatarUri: Uri?): Single<Bitmap> {
-        return ImageUtil.loadAsBitmap(avatarUri, BaseApplication.get())
+    private fun saveUpdatedGroup(group: Group): Completable {
+        return BaseApplication
+                .get()
+                .sofaMessageManager
+                .updateConversationFromGroup(group)
     }
 
-    private fun tryGeneratePlaceholderAvatar(avatar: Bitmap?, groupName: String): Bitmap {
-        return avatar.let { avatar } ?: groupName.toIdenticon()
-    }
-
-    override fun onCleared() {
-        this.subscriptions.clear()
-    }
+    private fun generateAvatarFromUri(avatarUri: Uri?) = ImageUtil.loadAsBitmap(avatarUri, BaseApplication.get())
+    private fun tryGeneratePlaceholderAvatar(avatar: Bitmap?, groupName: String) = avatar.let { avatar } ?: groupName.toIdenticon()
+    override fun onCleared() = subscriptions.clear()
 }

@@ -116,6 +116,14 @@ public final class SofaMessageManager {
                 .flatMap(this.conversationStore::createNewConversationFromGroup);
     }
 
+    public final Completable updateConversationFromGroup(final Group group) {
+        return Completable.fromAction(() -> {
+            messageSender.sendGroupInfo(group.getMembers(), group);
+            this.conversationStore.saveGroup(group);
+        })
+                .subscribeOn(Schedulers.io());
+    }
+
     @NotNull
     public Completable leaveGroup(@NotNull final Group group) {
         return Completable
