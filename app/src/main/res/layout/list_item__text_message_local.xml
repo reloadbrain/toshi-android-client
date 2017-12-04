@@ -51,6 +51,7 @@
             android:textColor="@color/textColorContrast"
             android:textColorLink="@color/textColorContrast"
             android:textSize="16sp"
+            android:textIsSelectable="true"
             tools:text="Local Message! www.test.com"/>
 
         <TextView
